@@ -8,7 +8,7 @@ contract InsuranceContract {
     
     struct Receiver {
         uint idRequest;
-        uint beitrag;
+        uint amount;
         address receptor;
     }
 
@@ -34,33 +34,28 @@ contract InsuranceContract {
         public payable 
         returns (uint idRequest)
         {
-            
-        
         
         require(msg.value > .01 ether);
         senders[ msg.sender].sender = msg.sender;
         
-        receiver.beitrag = msg.value;
+        receiver.amount = msg.value;
         receiver.receptor = addressReceptor;
-
         requestID = requestID + 1;
         receiver.idRequest = requestID;
         receivers[ msg.sender ].push(receiver);
         
         
-        bool istGefunden = false;
+        bool isFound = false;
         for (uint i=0; i<senderList.length; i++) { 
             if (senderList[i] == msg.sender) {
-                istGefunden = true;
+                isFound = true;
             }
         }
-        if (!istGefunden) {
+        if (!isFound) {
             senderList.push(msg.sender);
         }
         
         return requestID;
-        
-        // antragList.push(msg.sender);
     }
     
     modifier restricted() {
@@ -72,7 +67,7 @@ contract InsuranceContract {
         listReceptor = receivers[senderAddress];
         uint arrayLength = listReceptor.length;
         for (uint i=0; i<arrayLength; i++) {
-            listReceptor[i].receptor.transfer(listReceptor[i].beitrag);
+            listReceptor[i].receptor.transfer(listReceptor[i].amount);
         }
         delete receivers[senderAddress];
         delete senders[senderAddress];
