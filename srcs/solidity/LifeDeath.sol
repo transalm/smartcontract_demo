@@ -2,75 +2,80 @@ pragma solidity >=0.4.22 <0.7.0;
 
 contract InsuranceContract {
 
-    struct Insured {
-        string nameLast;
-        string nameFirst;
-        uint geburtsDatum;
-        uint todesDatum;
+    struct Sender {
         address sender;
     }
     
-    struct Empfaenger {
-        uint idAntrag;
+    struct Receiver {
+        uint idRequest;
         uint beitrag;
-        address empfaenger;
+        address receptor;
     }
-    
+
     address public manager;
-    Empfaenger public emp;
-    Insured sender;
-    uint antragID;
+    Receiver public receiver;
+    Sender sender;
+    uint requestID;
+    Receiver[] listReceptor;
+
+    mapping(address => Sender) public senders;
     
-    mapping(address => Insured) public senders;
-    
-    mapping(address => Empfaenger[]) public empfaengers;
+    mapping(address => Receiver[]) public receivers;
     
     address [] public senderList;
-    
+
     constructor() public {
        manager = msg.sender;
     }
     
-    function addAntrag( string nameFirstInsured, string nameLastInsured, address addressEmpfaenger) public payable returns (uint idAntrag){
+    function addRequest(
+        address addressReceptor
+        ) 
+        public payable 
+        returns (uint idRequest)
+        {
+            
+        
+        
         require(msg.value > .01 ether);
-        senders[ msg.sender].nameFirst = nameFirstInsured;
-        senders[ msg.sender].nameLast = nameLastInsured;
         senders[ msg.sender].sender = msg.sender;
         
-        emp.beitrag = msg.value;
-        emp.empfaenger = addressEmpfaenger;
+        receiver.beitrag = msg.value;
+        receiver.receptor = addressReceptor;
 
-        antragID = antragID + 1;
-        emp.idAntrag = antragID;
-        empfaengers[ msg.sender ].push(emp);
+        requestID = requestID + 1;
+        receiver.idRequest = requestID;
+        receivers[ msg.sender ].push(receiver);
         
         
-        bool hasPolicy = false;
+        bool istGefunden = false;
         for (uint i=0; i<senderList.length; i++) { 
             if (senderList[i] == msg.sender) {
-            hasPolicy = true;
-            }   
+                istGefunden = true;
+            }
         }
-        if (!hasPolicy) {
+        if (!istGefunden) {
             senderList.push(msg.sender);
         }
         
-        return antragID;
+        return requestID;
+        
+        // antragList.push(msg.sender);
     }
     
     modifier restricted() {
         require(msg.sender == manager);
         _;
     }
-    
-    function payAmount(address sender) public restricted{
-        Empfaenger[] listEmp = empfaengers[sender];
-        uint arrayLength = listEmp.length;
+
+    function payAmountProcess(address senderAddress) public restricted{
+        listReceptor = receivers[senderAddress];
+        uint arrayLength = listReceptor.length;
         for (uint i=0; i<arrayLength; i++) {
-            listEmp[i].empfaenger.transfer(listEmp[i].beitrag);
+            listReceptor[i].receptor.transfer(listReceptor[i].beitrag);
         }
-        delete empfaengers[sender];
-        delete senders[sender];
+        delete receivers[senderAddress];
+        delete senders[senderAddress];
 
     }
 }
