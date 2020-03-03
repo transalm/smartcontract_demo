@@ -2,25 +2,25 @@ pragma solidity >=0.4.22 <0.7.0;
 
 contract InsuranceContract {
 
-    struct Sender {
-        address sender;
+    struct PolicyHolder {
+        address policyHolderAddress;
     }
     
-    struct Receiver {
+    struct Beneficiary {
         uint idRequest;
         uint amount;
-        address receptor;
+        address beneficiaryAddress;
     }
 
     address public manager;
-    Receiver public receiver;
-    Sender sender;
+    Beneficiary public beneficiary;
+    PolicyHolder policyHolder;
     uint requestID;
-    Receiver[] listReceptor;
+    Beneficiary[] beneficiaryList;
 
-    mapping(address => Sender) public senders;
+    mapping(address => PolicyHolder) public policyHolders;
     
-    mapping(address => Receiver[]) public receivers;
+    mapping(address => Beneficiary[]) public beneficiaries;
     
     address [] public senderList;
 
@@ -29,20 +29,20 @@ contract InsuranceContract {
     }
     
     function addRequest(
-        address addressReceptor
+        address  addressBeneficiary
         ) 
         public payable 
         returns (uint idRequest)
         {
         
         require(msg.value > .01 ether);
-        senders[ msg.sender].sender = msg.sender;
+        policyHolders[ msg.sender ].policyHolderAddress = msg.sender;
         
-        receiver.amount = msg.value;
-        receiver.receptor = addressReceptor;
+        beneficiary.amount = msg.value;
+        beneficiary.beneficiaryAddress = addressBeneficiary;
         requestID = requestID + 1;
-        receiver.idRequest = requestID;
-        receivers[ msg.sender ].push(receiver);
+        beneficiary.idRequest = requestID;
+        beneficiaries[ msg.sender ].push(beneficiary);
         
         
         bool isFound = false;
@@ -63,14 +63,13 @@ contract InsuranceContract {
         _;
     }
 
-    function payAmountProcess(address senderAddress) public restricted{
-        listReceptor = receivers[senderAddress];
-        uint arrayLength = listReceptor.length;
+    function payAmountProcess(address policyHolderAddr) public restricted{
+        beneficiaryList = beneficiaries[policyHolderAddr];
+        uint arrayLength = beneficiaryList.length;
         for (uint i=0; i<arrayLength; i++) {
-            listReceptor[i].receptor.transfer(listReceptor[i].amount);
+            beneficiaryList[i].beneficiaryAddress.transfer(beneficiaryList[i].amount);
         }
-        delete receivers[senderAddress];
-        delete senders[senderAddress];
-
+        delete beneficiaries[policyHolderAddr];
+        delete policyHolders[policyHolderAddr];
     }
 }
