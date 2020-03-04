@@ -37,7 +37,7 @@ contract InsuranceContract {
         pc.policyHolderAddress = policyHoldersAddress;
         pc.premium = premium;
         pc.policyID = ++requestID;
-        policies[pc.policyID].push(pc);
+        contractCollections.push(pc);
         return pc.policyID;
     }
     
@@ -47,9 +47,9 @@ contract InsuranceContract {
     }
 
     function getPolicyContract(uint policyID) public view returns (uint, address, address, int, uint){
-        for (uint i=0; i<lifeContractCollection.length; i++) { 
-            if (lifeContractCollection[i].policyID == policyID) {
-                return (lifeContractCollection[i].policyID , lifeContractCollection[i].policyHolderAddress, lifeContractCollection[i].beneficiaryAddress, lifeContractCollection[i].dateOfBirth, lifeContractCollection[i].refund );
+        for (uint i=0; i<contractCollections.length; i++) { 
+            if (contractCollections[i].policyID == policyID) {
+                return (contractCollections[i].policyID , contractCollections[i].policyHolderAddress, contractCollections[i].beneficiaryAddress, contractCollections[i].dateOfBirth, contractCollections[i].refund );
             }
         }
         return (0, 0x0, 0x0, 0, 0);
